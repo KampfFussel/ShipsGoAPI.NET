@@ -46,7 +46,7 @@ namespace ShipsGoAPI.NET
         };
 
             var content = new FormUrlEncodedContent(data);
-            var response = await _httpClient.PostAsync(url, content);
+            var response = await _httpClient.PostAsync(url, content).ConfigureAwait(false);
             return await HandleResponse<TrackingRequestResponse>(response);
         }
         public async Task<TrackingRequestResponse> PostContainerInfoWithBl(string containerNumber, string? shippingLine = null, string? blContainersRef = null)
@@ -61,7 +61,7 @@ namespace ShipsGoAPI.NET
             };
 
             var content = new FormUrlEncodedContent(data);
-            var response = await _httpClient.PostAsync(url, content);
+            var response = await _httpClient.PostAsync(url, content).ConfigureAwait(false);
             return await HandleResponse<TrackingRequestResponse>(response);
         }
 
@@ -76,7 +76,7 @@ namespace ShipsGoAPI.NET
             };
 
             var content = new FormUrlEncodedContent(data);
-            var response = await _httpClient.PostAsync(url, content);
+            var response = await _httpClient.PostAsync(url, content).ConfigureAwait(false);
             return await HandleResponse<TrackingRequestResponse>(response);
         }
 
@@ -94,21 +94,21 @@ namespace ShipsGoAPI.NET
             };
 
             var content = new FormUrlEncodedContent(data);
-            var response = await _httpClient.PostAsync(url, content);
+            var response = await _httpClient.PostAsync(url, content).ConfigureAwait(false);
             return await HandleResponse<TrackingRequestResponse>(response);
         }
 
-        public async Task<VoyageDataResponse> GetVoyageData(string requestId)
+        public async Task<List<VoyageDataResponse>> GetVoyageData(string requestId)
         {
             var url = $"{_baseUrl}/api/v1.2/ContainerService/GetContainerInfo/?authCode={_authCode}&requestId={requestId}";
-            var response = await _httpClient.GetAsync(url);
-            return await HandleResponse<VoyageDataResponse>(response);
+            var response = await _httpClient.GetAsync(url).ConfigureAwait(false);
+            return await HandleResponse<List<VoyageDataResponse>>(response);
         }
 
         public async Task<List<ShippingLine>> GetShippingLineList()
         {
             var url = $"{_baseUrl}/api/v1.2/ContainerService/GetShippingLineList";
-            var response = await _httpClient.GetAsync(url);
+            var response = await _httpClient.GetAsync(url).ConfigureAwait(false);
 
             // Handle potential parsing errors (i should probably handle this more gracefully..)
             try
@@ -135,6 +135,9 @@ namespace ShipsGoAPI.NET
             }
             else
             {
+                if(response.StatusCode == System.Net.HttpStatusCode.BadRequest)
+                    return default;
+
                 throw new Exception($"Error: {response.StatusCode} - {await response.Content.ReadAsStringAsync()}");
             }
         }
